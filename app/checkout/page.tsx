@@ -4,6 +4,8 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Step = "login" | "otp" | "address" | "payment";
@@ -137,13 +139,23 @@ function OrderSummary() {
 // ── Step 1: Login ──────────────────────────────────────────────────────────
 function LoginStep({ onNext, phone, setPhone }: { onNext: () => void; phone: string; setPhone: (v: string) => void }) {
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const submit = () => {
+    const submit = async () => {
         if (!/^[6-9]\d{9}$/.test(phone)) {
             setError("Enter a valid 10-digit Indian mobile number.");
             return;
         }
         setError("");
+        setLoading(true);
+        const { error: signInError } = await supabase.auth.signInWithOtp({
+            phone: "+91" + phone,
+        });
+        setLoading(false);
+        if (signInError) {
+            setError(signInError.message);
+            return;
+        }
         onNext();
     };
 
@@ -171,9 +183,10 @@ function LoginStep({ onNext, phone, setPhone }: { onNext: () => void; phone: str
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={submit}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#CD7F32] to-[#B87333] text-white font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_28px_rgba(184,115,51,0.4)] transition-shadow"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#CD7F32] to-[#B87333] text-white font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_28px_rgba(184,115,51,0.4)] transition-shadow disabled:opacity-60"
                 >
-                    Send OTP
+                    {loading ? "Sending..." : "Send OTP"}
                 </motion.button>
             </div>
         </motion.div>
@@ -184,6 +197,7 @@ function LoginStep({ onNext, phone, setPhone }: { onNext: () => void; phone: str
 function OtpStep({ onNext, phone, onBack }: { onNext: () => void; phone: string; onBack: () => void }) {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const [timer, setTimer] = useState(30);
     const inputs = useCallback((i: number) => document.getElementById(`otp-${i}`) as HTMLInputElement | null, []);
 
@@ -205,11 +219,21 @@ function OtpStep({ onNext, phone, onBack }: { onNext: () => void; phone: string;
         if (e.key === "Backspace" && !otp[i] && i > 0) inputs(i - 1)?.focus();
     };
 
-    const submit = () => {
+    const submit = async () => {
         const code = otp.join("");
         if (code.length < 6) { setError("Enter the 6-digit code."); return; }
-        // Any 6-digit code is accepted (mock OTP)
         setError("");
+        setLoading(true);
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+            phone: "+91" + phone,
+            token: code,
+            type: "sms",
+        });
+        setLoading(false);
+        if (verifyError) {
+            setError(verifyError.message);
+            return;
+        }
         onNext();
     };
 
@@ -248,9 +272,10 @@ function OtpStep({ onNext, phone, onBack }: { onNext: () => void; phone: string;
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={submit}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#CD7F32] to-[#B87333] text-white font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_28px_rgba(184,115,51,0.4)] transition-shadow"
+                disabled={loading}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#CD7F32] to-[#B87333] text-white font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_28px_rgba(184,115,51,0.4)] transition-shadow disabled:opacity-60"
             >
-                Verify &amp; Continue
+                {loading ? "Verifying..." : "Verify & Continue"}
             </motion.button>
         </motion.div>
     );
@@ -436,6 +461,32 @@ export default function CheckoutPage() {
         name: "", phone: "", flat: "", street: "", city: "", state: "", pincode: "", landmark: "",
     });
     const { state } = useCart();
+    const [sessionId, setSessionId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const saveProgress = async () => {
+            try {
+                const data = {
+                    phone,
+                    step,
+                    form_data: address,
+                    cart_items: state.items
+                };
+
+                if (sessionId) {
+                    await supabase.from("checkout_sessions").update(data).eq("id", sessionId);
+                } else {
+                    const { data: insertData } = await supabase.from("checkout_sessions").insert([data]).select().single();
+                    if (insertData) setSessionId(insertData.id);
+                }
+            } catch (e) {
+                console.error("Failed to save progress", e);
+            }
+        };
+
+        const timeout = setTimeout(saveProgress, 1000);
+        return () => clearTimeout(timeout);
+    }, [phone, step, address, state.items, sessionId]);
 
     const stepLabel: Record<Step, string> = {
         login: "Verify Your Number",

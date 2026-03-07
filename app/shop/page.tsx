@@ -105,11 +105,6 @@ function ProductThumbnails({ product, activeKey, onSelect }: { product: (typeof 
                             height={120}
                             className="object-cover w-full h-full"
                         />
-                        <div className={`absolute inset-0 flex items-end justify-center pb-1.5 bg-gradient-to-t from-black/50 to-transparent ${isActive ? "from-[#B87333]/60" : ""}`}>
-                            <span className={`text-[10px] uppercase tracking-[0.15em] font-medium ${isActive ? "text-white" : "text-white/80"}`}>
-                                {view.label}
-                            </span>
-                        </div>
                     </button>
                 );
             })}

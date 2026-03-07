@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
 
 const contactInfo = [
     { icon: "📩", label: "Email", value: "contactevoniq@gmail.com", href: "mailto:contactevoniq@gmail.com" },
@@ -15,10 +16,19 @@ export default function ContactPage() {
     const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
     const [sent, setSent] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: wire to email API or Formspree
-        setSent(true);
+        try {
+            await supabase.from("contact_messages").insert([{
+                name: form.name,
+                email: form.email,
+                subject: form.subject,
+                message: form.message
+            }]);
+            setSent(true);
+        } catch (error) {
+            console.error("Failed to send message:", error);
+        }
     };
 
     const field = (label: string, key: keyof typeof form, type = "text", placeholder = "") => (
