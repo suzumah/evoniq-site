@@ -41,7 +41,7 @@ type CartAction =
     | { type: "HYDRATE"; payload: Partial<CartState> };
 
 // ── Reducer ────────────────────────────────────────────────────────────────
-const VALID_COUPON = "4IN1";
+const VALID_COUPONS = ["4IN1", "FIRST50", "TEST"];
 
 function cartReducer(state: CartState, action: CartAction): CartState {
     switch (action.type) {
@@ -82,7 +82,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             };
         case "APPLY_COUPON": {
             const code = action.payload.trim().toUpperCase();
-            if (code === VALID_COUPON) {
+            if (VALID_COUPONS.includes(code)) {
                 return {
                     ...state,
                     couponCode: code,
@@ -155,10 +155,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [state]);
 
     const totalItems = state.items.reduce((acc, i) => acc + i.qty, 0);
-    const totalPrice = state.items.reduce(
+    let totalPrice = state.items.reduce(
         (acc, i) => acc + i.product.priceNum * i.qty,
         0
     );
+
+    if (state.couponApplied) {
+        if (state.couponCode === "FIRST50") {
+            totalPrice = Math.max(0, totalPrice - 500);
+        } else if (state.couponCode === "TEST") {
+            totalPrice = 0;
+        }
+    }
 
     const openCart = useCallback(() => dispatch({ type: "OPEN_CART" }), []);
     const closeCart = useCallback(() => dispatch({ type: "CLOSE_CART" }), []);

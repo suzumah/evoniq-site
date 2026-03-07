@@ -6,6 +6,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { products } from "@/data/products";
+import PromoBanner from "@/components/PromoBanner";
 import { useCart } from "@/context/CartContext";
 import type { CartProduct } from "@/context/CartContext";
 
@@ -335,6 +336,8 @@ export default function ShopPage() {
                     </AnimatePresence>
                 </div>
             </section>
+
+            <PromoBanner />
 
             {/* ─── Detailed Sections ─── */}
 

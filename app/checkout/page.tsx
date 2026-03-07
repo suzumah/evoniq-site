@@ -119,6 +119,18 @@ function OrderSummary() {
                             <span>Shipping</span>
                             <span className="text-green-600 font-medium">FREE</span>
                         </div>
+                        {state.couponApplied && state.couponCode === "FIRST50" && (
+                            <div className="flex justify-between text-[#8A7F75]">
+                                <span>Discount (FIRST50)</span>
+                                <span className="text-green-600 font-medium">-₹500</span>
+                            </div>
+                        )}
+                        {state.couponApplied && state.couponCode === "TEST" && (
+                            <div className="flex justify-between text-[#8A7F75]">
+                                <span>Discount (TEST)</span>
+                                <span className="text-green-600 font-medium">-100%</span>
+                            </div>
+                        )}
                         <div className="flex justify-between font-bold text-[#2A2420] text-base pt-1.5 border-t border-[#B87333]/10">
                             <span>Total</span>
                             <span className="text-[#B87333]">₹{totalPrice.toLocaleString("en-IN")}</span>

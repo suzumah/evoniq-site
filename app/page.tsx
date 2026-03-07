@@ -7,6 +7,7 @@ import Image from "next/image";
 import ProductSleeveScroll from "@/components/ProductSleeveScroll";
 import ProductTextOverlays from "@/components/ProductTextOverlays";
 import AnnouncementRibbon from "@/components/AnnouncementRibbon";
+import PromoBanner from "@/components/PromoBanner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { products } from "@/data/products";
@@ -80,6 +81,7 @@ export default function HomePage() {
                 </div>
             </div>
 
+            <PromoBanner />
 
             {/* ─── Key Highlights Strip ─── */}
             <section className="relative py-16 sm:py-20 overflow-hidden">

@@ -21,6 +21,19 @@ const items = [
     {
         icon: (
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" stroke="none" />
+            </svg>
+        ),
+        text: (
+            <>
+                ₹500 OFF (First 50 Customers) — use code{" "}
+                <span className="ribbon-code" style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 0 8px rgba(16,185,129,0.55)" }}>FIRST50</span>
+            </>
+        ),
+    },
+    {
+        icon: (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
             </svg>
