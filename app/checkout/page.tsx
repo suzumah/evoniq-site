@@ -510,7 +510,7 @@ function PaymentStep({ form, phone, sessionId }: { form: AddressForm; phone: str
             </motion.button>
 
             <p className="text-[#8A7F75] text-[10px] text-center mt-3">
-                Secured by 256-bit SSL encryption. Payment gateway integration coming soon.
+                Secured by 256-bit SSL encryption. Payments processed securely via Razorpay.
             </p>
         </motion.div>
     );
