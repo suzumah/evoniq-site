@@ -3,6 +3,7 @@ import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import { Analytics } from "@vercel/analytics/next";
 
 const montserrat = Montserrat({
     subsets: ["latin"],
@@ -62,6 +63,7 @@ export default function RootLayout({
                     {children}
                     <CartDrawer />
                 </CartProvider>
+                <Analytics />
             </body>
         </html>
     );
