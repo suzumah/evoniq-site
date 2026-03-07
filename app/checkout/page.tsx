@@ -386,71 +386,107 @@ function PaymentStep({ form, phone, sessionId }: { form: AddressForm; phone: str
     const [loading, setLoading] = useState(false);
 
     const handleProceed = async () => {
-        setLoading(true);
-        const res = await loadRazorpay();
+        try {
+            setLoading(true);
+            const res = await loadRazorpay();
 
-        if (!res) {
-            alert("Razorpay SDK failed to load. Please check your internet connection.");
+            if (!res) {
+                alert("Razorpay SDK failed to load. Please check your internet connection.");
+                setLoading(false);
+                return;
+            }
+
+            let response;
+            try {
+                response = await fetch("/api/create-razorpay-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount: totalPrice, sessionId }),
+                });
+            } catch (err) {
+                alert("Network error: Could not reach the payment server.");
+                setLoading(false);
+                return;
+            }
+
+            let data;
+            try {
+                data = await response.json();
+            } catch (err) {
+                alert("Error: Payment server returned an invalid response. Please verify your Razorpay API Keys are configured correctly.");
+                setLoading(false);
+                return;
+            }
+
+            if (!response.ok || data.error) {
+                alert(data.error || "Could not start payment. Please try again later.");
+                setLoading(false);
+                return;
+            }
+
+            // Fallback key fetching allows either build-time injection or runtime fetching from server
+            const keyToUse = data.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+            if (!keyToUse) {
+                alert("Configuration Error: Razorpay Key ID is missing. Please add it to your deployment settings.");
+                setLoading(false);
+                return;
+            }
+
+            const options = {
+                key: keyToUse,
+                amount: data.amount,
+                currency: data.currency,
+                name: "EVONIQ",
+                description: "Thanks for placing your order with EVONIQ!",
+                image: "https://evoniq.in/images/logo/evoniq-logo.png",
+                order_id: data.id,
+                handler: async function (response: any) {
+                    try {
+                        const verifyData = {
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            sessionId
+                        };
+
+                        const verifyResRaw = await fetch('/api/verify-razorpay-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(verifyData),
+                        });
+                        const verifyRes = await verifyResRaw.json();
+
+                        if (verifyRes.message === 'Payment verified successfully.') {
+                            alert("Payment Successful! We have received your order!");
+                        } else {
+                            alert("Warning: Payment tampering detected or verification failed!");
+                        }
+                    } catch (e) {
+                        alert("Payment succeeded but verification failed to respond. Check your dashboard.");
+                    }
+                },
+                prefill: {
+                    name: form.name,
+                    contact: "+91" + phone,
+                },
+                theme: {
+                    color: "#B87333", // EVONIQ gold branding
+                },
+            };
+
+            const paymentObject = new (window as any).Razorpay(options);
+            paymentObject.on("payment.failed", function (response: any) {
+                alert("Payment failed: " + response.error.description);
+            });
+            paymentObject.open();
+
+        } catch (error: any) {
+            console.error(error);
+            alert("An unexpected error occurred: " + (error.message || "Unknown error"));
+        } finally {
             setLoading(false);
-            return;
         }
-
-        const data = await fetch("/api/create-razorpay-order", {
-            method: "POST",
-            body: JSON.stringify({ amount: totalPrice, sessionId }),
-        }).then((t) => t.json());
-
-        if (data.error) {
-            alert("Could not start payment. Please try again later.");
-            setLoading(false);
-            return;
-        }
-
-        const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
-            amount: data.amount,
-            currency: data.currency,
-            name: "EVONIQ",
-            description: "Thanks for placing your order with EVONIQ!",
-            image: "https://evoniq.in/images/logo/evoniq-logo.png",
-            order_id: data.id,
-            handler: async function (response: any) {
-                const verifyData = {
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                    sessionId
-                };
-
-                const verifyRes = await fetch('/api/verify-razorpay-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(verifyData),
-                }).then(t => t.json());
-
-                if (verifyRes.message === 'Payment verified successfully.') {
-                    alert("Payment Successful! We have received your order!");
-                    // Here you can redirect the user to a success page or clear cart
-                } else {
-                    alert("Warning: Payment tampering detected or verification failed!");
-                }
-            },
-            prefill: {
-                name: form.name,
-                contact: "+91" + phone,
-            },
-            theme: {
-                color: "#B87333", // EVONIQ gold branding
-            },
-        };
-
-        const paymentObject = new (window as any).Razorpay(options);
-        paymentObject.on("payment.failed", function (response: any) {
-            alert("Payment failed: " + response.error.description);
-        });
-        paymentObject.open();
-
-        setLoading(false);
     };
 
     return (

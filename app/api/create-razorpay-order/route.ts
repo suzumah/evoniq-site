@@ -27,7 +27,12 @@ export async function POST(req: Request) {
                 .eq('id', sessionId);
         }
 
-        return NextResponse.json(order);
+        return NextResponse.json({
+            id: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || ''
+        });
     } catch (error) {
         console.error('Razorpay Error:', error);
         return NextResponse.json(
