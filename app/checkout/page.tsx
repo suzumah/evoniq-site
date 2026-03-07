@@ -371,22 +371,85 @@ function AddressStep({ onNext, form, setForm }: { onNext: () => void; form: Addr
 }
 
 // ── Step 4: Payment (stub) ────────────────────────────────────────────────
-function PaymentStep({ form, phone }: { form: AddressForm; phone: string }) {
+const loadRazorpay = () => {
+    return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
+
+function PaymentStep({ form, phone, sessionId }: { form: AddressForm; phone: string; sessionId: string | null }) {
     const { state, totalPrice } = useCart();
     const [loading, setLoading] = useState(false);
 
     const handleProceed = async () => {
         setLoading(true);
-        // TODO: integrate payment gateway API
-        // Example:
-        // const res = await fetch("/api/create-order", {
-        //   method: "POST",
-        //   body: JSON.stringify({ amount: totalPrice, phone, address: form }),
-        // });
-        // const { paymentUrl } = await res.json();
-        // window.location.href = paymentUrl;
-        await new Promise((r) => setTimeout(r, 1500)); // simulate
-        alert("Payment gateway coming soon! Your order details have been recorded.");
+        const res = await loadRazorpay();
+
+        if (!res) {
+            alert("Razorpay SDK failed to load. Please check your internet connection.");
+            setLoading(false);
+            return;
+        }
+
+        const data = await fetch("/api/create-razorpay-order", {
+            method: "POST",
+            body: JSON.stringify({ amount: totalPrice, sessionId }),
+        }).then((t) => t.json());
+
+        if (data.error) {
+            alert("Could not start payment. Please try again later.");
+            setLoading(false);
+            return;
+        }
+
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
+            amount: data.amount,
+            currency: data.currency,
+            name: "EVONIQ",
+            description: "Thanks for placing your order with EVONIQ!",
+            image: "https://evoniq.in/images/logo/evoniq-logo.png",
+            order_id: data.id,
+            handler: async function (response: any) {
+                const verifyData = {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    sessionId
+                };
+
+                const verifyRes = await fetch('/api/verify-razorpay-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(verifyData),
+                }).then(t => t.json());
+
+                if (verifyRes.message === 'Payment verified successfully.') {
+                    alert("Payment Successful! We have received your order!");
+                    // Here you can redirect the user to a success page or clear cart
+                } else {
+                    alert("Warning: Payment tampering detected or verification failed!");
+                }
+            },
+            prefill: {
+                name: form.name,
+                contact: "+91" + phone,
+            },
+            theme: {
+                color: "#B87333", // EVONIQ gold branding
+            },
+        };
+
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.on("payment.failed", function (response: any) {
+            alert("Payment failed: " + response.error.description);
+        });
+        paymentObject.open();
+
         setLoading(false);
     };
 
@@ -564,7 +627,7 @@ export default function CheckoutPage() {
                                     />
                                 )}
                                 {step === "payment" && (
-                                    <PaymentStep key="payment" form={address} phone={phone} />
+                                    <PaymentStep key="payment" form={address} phone={phone} sessionId={sessionId} />
                                 )}
                             </AnimatePresence>
                         </>
