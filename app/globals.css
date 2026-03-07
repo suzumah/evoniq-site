@@ -1,0 +1,597 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #C8BEB2;
+  --bg-secondary: #D0C6BB;
+  --bg-warm: #BDB3A8;
+  --accent: #B87333;
+  --accent-dark: #8B5E3C;
+  --accent-light: #CD7F32;
+  --text-primary: #1C1713;
+  --text-secondary: #4A4038;
+  --text-muted: #7A6F65;
+  --accent-glow: rgba(184, 115, 51, 0.40);
+  /* Liquid Glass tokens */
+  --lg-blur: blur(28px) saturate(200%) brightness(1.05);
+  --lg-border: 1px solid rgba(255, 255, 255, 0.35);
+  --lg-surface: rgba(255, 255, 255, 0.14);
+  --lg-surface-strong: rgba(255, 255, 255, 0.22);
+  --lg-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.0) 55%);
+  --lg-shadow: 0 8px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  background: linear-gradient(160deg,
+      #C2B7AA 0%,
+      #BDB2A5 25%,
+      #B8ADA0 55%,
+      #AFA498 100%);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Suede texture overlay — applied via utility class */
+.suede-bg {
+  position: relative;
+  background: linear-gradient(160deg,
+      #C2B7AA 0%,
+      #BDB2A5 30%,
+      #B3A89B 65%,
+      #A89D90 100%);
+}
+
+.suede-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.7;
+}
+
+.suede-bg>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* Selection styling */
+::selection {
+  background-color: #B87333;
+  color: #FAFAFA;
+}
+
+::-moz-selection {
+  background-color: #B87333;
+  color: #FAFAFA;
+}
+
+/* Scrollbar — warm suede style */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(184, 115, 51, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 115, 51, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 115, 51, 0.3) var(--bg-secondary);
+}
+
+/* Utility animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg,
+      rgba(139, 94, 60, 0.6) 0%,
+      rgba(205, 127, 50, 1) 50%,
+      rgba(139, 94, 60, 0.6) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Copper text gradient utility */
+.copper-text {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 40%, #8B5E3C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Premium logo rendering */
+.logo-premium {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 1px 2px rgba(139, 94, 60, 0.15));
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+.logo-premium:hover {
+  filter: drop-shadow(0 2px 8px rgba(184, 115, 51, 0.3));
+  transform: scale(1.05);
+}
+
+/* Large logo variant — for CTA/hero sections */
+.logo-premium-lg {
+  image-rendering: -webkit-optimize-contrast;
+  filter: drop-shadow(0 2px 6px rgba(139, 94, 60, 0.2));
+}
+
+/* Logo container ring — subtle copper halo */
+.logo-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(184, 115, 51, 0.08);
+  pointer-events: none;
+  transition: border-color 0.3s ease;
+}
+
+.logo-ring:hover::after {
+  border-color: rgba(184, 115, 51, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LIQUID GLASS — Apple iOS 26 Design Language
+   ─────────────────────────────────────────────────────────────
+   System: Layered translucency + specular highlight + blur
+   Usage: .liquid-glass, .liquid-glass-strong, .liquid-glass-dark,
+          .liquid-glass-copper (for CTA buttons)
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes liquidShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── Base Liquid Glass (light surfaces) ── */
+.liquid-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(28px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    /* top specular highlight */
+    0 -1px 0 rgba(0, 0, 0, 0.06) inset,
+    /* bottom edge shadow */
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Specular highlight sweep */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.50) 0%,
+      rgba(255, 255, 255, 0.10) 40%,
+      rgba(255, 255, 255, 0.00) 60%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+/* Chromatic border shimmer on hover */
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--angle, 135deg),
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(184, 115, 51, 0.35) 35%,
+      rgba(255, 255, 255, 0.1) 60%,
+      rgba(205, 127, 50, 0.2) 100%);
+  background-origin: border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass:hover::after {
+  opacity: 1;
+}
+
+.liquid-glass>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Strong Liquid Glass ── */
+.liquid-glass-strong {
+  position: relative;
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(40px) saturate(220%) brightness(1.08);
+  -webkit-backdrop-filter: blur(40px) saturate(220%) brightness(1.08);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.06) inset,
+    0 12px 40px rgba(0, 0, 0, 0.20),
+    0 4px 14px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+}
+
+.liquid-glass-strong::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.60) 0%,
+      rgba(255, 255, 255, 0.12) 45%,
+      rgba(255, 255, 255, 0.00) 65%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.liquid-glass-strong>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Dark Liquid Glass (over dark/image backgrounds) ── */
+.liquid-glass-dark {
+  position: relative;
+  background: rgba(10, 6, 3, 0.42);
+  backdrop-filter: blur(24px) saturate(160%) brightness(0.92);
+  -webkit-backdrop-filter: blur(24px) saturate(160%) brightness(0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20);
+  overflow: hidden;
+}
+
+.liquid-glass-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.00) 55%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.liquid-glass-dark>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Copper/Gold Liquid Glass — CTA buttons ── */
+.liquid-glass-copper {
+  position: relative;
+  background: linear-gradient(135deg,
+      rgba(205, 127, 50, 0.85) 0%,
+      rgba(184, 115, 51, 0.90) 50%,
+      rgba(139, 94, 60, 0.88) 100%);
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
+  border: 1px solid rgba(255, 200, 100, 0.40);
+  box-shadow:
+    0 1px 0 rgba(255, 210, 120, 0.50) inset,
+    0 -1px 0 rgba(100, 50, 10, 0.30) inset,
+    0 0 0 1px rgba(184, 115, 51, 0.25),
+    0 8px 28px rgba(184, 115, 51, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.liquid-glass-copper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.30) 0%,
+      rgba(255, 255, 255, 0.00) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-copper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(200px,
+      rgba(255, 255, 255, 0.85) 0%,
+      transparent 50%);
+  background-size: 200% 100%;
+  background-position: -200% 0;
+  opacity: 0;
+  transition: opacity 0.3s ease, background-position 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-copper:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 210, 120, 0.60) inset,
+    0 -1px 0 rgba(100, 50, 10, 0.30) inset,
+    0 0 0 1px rgba(205, 127, 50, 0.45),
+    0 12px 40px rgba(184, 115, 51, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.liquid-glass-copper:hover::after {
+  opacity: 1;
+  background-position: 200% 0;
+}
+
+.liquid-glass-copper>* {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ── Upgraded .glass — now uses Liquid Glass base ── */
+.glass {
+  background: rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.04);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.50) inset,
+    0 6px 24px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.07);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.30);
+  backdrop-filter: blur(36px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.60) inset,
+    0 10px 36px rgba(0, 0, 0, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark glass — for sections over product images (dark backgrounds) */
+.glass-dark {
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(24px) saturate(160%) brightness(0.9);
+  -webkit-backdrop-filter: blur(24px) saturate(160%) brightness(0.9);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.10) inset,
+    0 8px 28px rgba(0, 0, 0, 0.30);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GOLDEN GLOW SYSTEM
+   ───────────────────────────────────────────────────────────── */
+
+/* Keyframes */
+@keyframes goldenPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(184, 115, 51, 0.25), 0 0 28px rgba(205, 127, 50, 0.10);
+  }
+
+  50% {
+    box-shadow: 0 0 22px rgba(184, 115, 51, 0.45), 0 0 50px rgba(205, 127, 50, 0.20);
+  }
+}
+
+@keyframes goldenTextGlow {
+
+  0%,
+  100% {
+    text-shadow: 0 0 8px rgba(184, 115, 51, 0.35), 0 0 20px rgba(205, 127, 50, 0.15);
+  }
+
+  50% {
+    text-shadow: 0 0 14px rgba(184, 115, 51, 0.6), 0 0 35px rgba(205, 127, 50, 0.3);
+  }
+}
+
+/* Static utility: soft golden glow on any element */
+.glow-gold {
+  box-shadow:
+    0 0 0 1px rgba(184, 115, 51, 0.15),
+    0 0 16px rgba(184, 115, 51, 0.20),
+    0 0 40px rgba(205, 127, 50, 0.08);
+}
+
+/* Stronger hover-glow for interactive elements */
+.glow-gold-hover {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.glow-gold-hover:hover {
+  box-shadow:
+    0 0 0 1px rgba(184, 115, 51, 0.3),
+    0 0 24px rgba(184, 115, 51, 0.35),
+    0 0 60px rgba(205, 127, 50, 0.15);
+}
+
+/* Pulsing glow — CTA buttons, active badges */
+.glow-gold-pulse {
+  animation: goldenPulse 3s ease-in-out infinite;
+}
+
+/* Text glow — for headings / accent text */
+.glow-text-gold {
+  text-shadow: 0 0 12px rgba(184, 115, 51, 0.4), 0 0 30px rgba(205, 127, 50, 0.18);
+}
+
+.glow-text-gold-pulse {
+  animation: goldenTextGlow 3s ease-in-out infinite;
+}
+
+/* Card glow (glass cards on hover) */
+.glass:hover,
+.glass-strong:hover {
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(184, 115, 51, 0.18),
+    0 0 32px rgba(184, 115, 51, 0.12);
+  transition: box-shadow 0.4s ease;
+}
+
+/* Golden divider line */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(184, 115, 51, 0.35) 20%,
+      rgba(205, 127, 50, 0.65) 50%,
+      rgba(184, 115, 51, 0.35) 80%,
+      transparent 100%);
+  border: none;
+}
+
+/* Golden border glow on focus — inputs, buttons */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(184, 115, 51, 0.25),
+    0 0 16px rgba(184, 115, 51, 0.12);
+}
+
+/* Copper buttons — layered glow */
+.btn-copper {
+  background: linear-gradient(135deg, #CD7F32, #B87333);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(205, 127, 50, 0.3),
+    0 0 20px rgba(184, 115, 51, 0.20);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.btn-copper:hover {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(205, 127, 50, 0.5),
+    0 0 40px rgba(184, 115, 51, 0.35),
+    0 0 80px rgba(205, 127, 50, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Icon glow wrapper */
+.icon-gold {
+  filter: drop-shadow(0 0 5px rgba(184, 115, 51, 0.5)) drop-shadow(0 0 12px rgba(205, 127, 50, 0.25));
+}
+
+/* Ambient section glow — subtle radial background highlight */
+.section-glow-gold::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(ellipse at center, rgba(184, 115, 51, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Logo ring enhanced */
+.logo-premium {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 1px 2px rgba(139, 94, 60, 0.15)) drop-shadow(0 0 6px rgba(184, 115, 51, 0.20));
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+.logo-premium:hover {
+  filter:
+    drop-shadow(0 2px 8px rgba(184, 115, 51, 0.4)) drop-shadow(0 0 20px rgba(205, 127, 50, 0.25));
+  transform: scale(1.05);
+}
