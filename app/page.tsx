@@ -8,6 +8,7 @@ import ProductSleeveScroll from "@/components/ProductSleeveScroll";
 import ProductTextOverlays from "@/components/ProductTextOverlays";
 import AnnouncementRibbon from "@/components/AnnouncementRibbon";
 import PromoBanner from "@/components/PromoBanner";
+import Testimonials from "@/components/Testimonials";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { products } from "@/data/products";
@@ -276,6 +277,7 @@ export default function HomePage() {
                 </motion.div>
             </section>
 
+            <Testimonials />
             <Footer />
         </main>
     );
